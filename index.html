@@ -11,7 +11,7 @@
     header{margin-top:10px}
     .small{font-family: 'Brush Script MT', cursive;font-size:42px;color:#000;letter-spacing:1px}
     h1{font-size:86px;margin:6px 0;font-weight:700;letter-spacing:2px}
-    .subtitle{font-size:18px;color:#222;margin-bottom:18px}
+    .subtitle{font-size:20px;color:#222;margin-bottom:18px;min-height:28px}
 
     .entry{display:flex;justify-content:center;gap:8px;align-items:center;margin:10px 0}
     .entry input[type=text]{width:420px;padding:8px;border:3px solid #f4a3c9;background:transparent;border-radius:2px}
@@ -45,7 +45,7 @@
     <header>
       <div class="small">Feliz Aniversario</div>
       <h1>mon amour</h1>
-      <div class="subtitle" id="subtitle"></div>
+      <div class="subtitle" id="subtitle">(Aquí aparecerá el acertijo)</div>
     </header>
 
     <div class="entry">
@@ -53,11 +53,9 @@
       <button id="enterBtn">ENTER</button>
     </div>
 
-    <div class="message-box" id="messageBox">
-      <div id="promptArea"></div>
-    </div>
+    <div class="message-box" id="messageBox"></div>
 
-    <div class="progress" id="progress">Acertijo 0 / 15</div>
+    <div class="progress" id="progress">Acertijo 1 / 15</div>
 
     <img src="assets/Tiara.png" class="corner-img" id="tiara" alt="Tiara"/>
 
@@ -65,7 +63,7 @@
 
   </div>
 
-  <div class="music-bar">
+  <div class="music-bar" id="musicBar" style="display:none">
     <button id="playPause">▶</button>
     <div class="music-code" id="musicIndicator">Pista de musica</div>
     <audio id="audioPlayer"></audio>
@@ -107,24 +105,29 @@
 
     let current=1, attempts=0;
 
-    const promptArea=document.getElementById('promptArea');
+    const subtitle=document.getElementById('subtitle');
     const progress=document.getElementById('progress');
     const answerInput=document.getElementById('answer');
     const enterBtn=document.getElementById('enterBtn');
+    const messageBox=document.getElementById('messageBox');
+    const musicBar=document.getElementById('musicBar');
+    const playBtn=document.getElementById('playPause');
+    const audioPlayer=document.getElementById('audioPlayer');
+    const musicIndicator=document.getElementById('musicIndicator');
     const balloon=document.getElementById('balloon');
 
     function updateUI(){
       progress.textContent=`Acertijo ${current} / 15`;
       const r=riddles[current-1];
-      let html=`<strong>Acertijo ${r.id}:</strong> ${r.prompt}`;
-      if(r.link) html+=`<div><a href="${r.link}" target="_blank">Abrir recurso</a></div>`;
-      if(r.audio) html+=`<div><small>Este acertijo tiene pista de audio, usa la barra de música.</small></div>`;
-      if(r.specialLetter) html+=`<div><strong>Letra especial: ${r.specialLetter}</strong></div>`;
-      promptArea.innerHTML=html;
+      subtitle.innerHTML=`<strong>Acertijo ${r.id}:</strong> ${r.prompt}`;
+      messageBox.innerHTML="";
+      if(r.link) messageBox.innerHTML+=`<div><a href="${r.link}" target="_blank">Abrir recurso</a></div>`;
+      if(r.specialLetter) messageBox.innerHTML+=`<div><strong>Letra especial: ${r.specialLetter}</strong></div>`;
+      if(r.audio) musicBar.style.display="flex"; else musicBar.style.display="none";
     }
 
     function normalize(s){return s.trim().toLowerCase();}
-    function showMessage(t){document.getElementById('messageBox').innerHTML=`<div>${t}</div>`;}
+    function showMessage(t){messageBox.innerHTML=`<div>${t}</div>`;}
 
     function nextRiddle(){current++;attempts=0;if(current<=riddles.length)updateUI();}
 
@@ -153,9 +156,24 @@
 
     // Globos en imágenes
     function showBalloon(text){balloon.textContent=text;balloon.classList.add('show');setTimeout(()=>balloon.classList.remove('show'),6000);}
-    document.getElementById('lazo').addEventListener('click',()=>showBalloon("Es lindo el ver cómo con la moda coquette aprendí que se puede cambiar de opinión..."));
-    document.getElementById('cereza').addEventListener('click',()=>showBalloon("Sabes es lindo que poco a poco pude ir conociendo más lo que me dejabas aprender..."));
+    document.getElementById('lazo').addEventListener('click',()=>showBalloon("Es lindo el ver cómo con la moda coquette aprendí que se puede cambiar de opinión y siempre quise hacerte sentir escuchada..."));
+    document.getElementById('cereza').addEventListener('click',()=>showBalloon("Sabes es lindo que poco a poco pude ir conociendo más lo que me dejabas aprender con pequeñas cosas como tus gustos..."));
     document.getElementById('tiara').addEventListener('click',()=>showBalloon("Ey encontraste por tu curiosidad tu lindo accesorio MI PRINCESITA hermosa..."));
+
+    // Música
+    playBtn.addEventListener('click',()=>{
+      const r=riddles[current-1];
+      if(audioPlayer.paused){
+        if(r.audio) audioPlayer.src=r.audio;
+        audioPlayer.play();
+        playBtn.textContent='⏸';
+        musicIndicator.textContent=`Pista de musica — CÓDIGO: ${Math.floor(1000+Math.random()*9000)}`;
+      }else{
+        audioPlayer.pause();
+        playBtn.textContent='▶';
+        musicIndicator.textContent='Pista de musica';
+      }
+    });
 
     updateUI();
   </script>
