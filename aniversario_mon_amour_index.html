@@ -1,0 +1,252 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Feliz Aniversario — mon amour</title>
+  <style>
+    :root{ --bg:#ffeef6; --pink:#f6b6d0; --dark:#2b1b1b; --accent:#f08ab5 }
+    html,body{height:100%;margin:0;font-family: 'Georgia', serif;background:linear-gradient(180deg, #ffeef6 0%, #fff0f2 100%);}
+    .container{max-width:1100px;margin:20px auto;padding:20px;position:relative;text-align:center}
+    header{margin-top:10px}
+    .small{font-family: 'Brush Script MT', cursive;font-size:42px;color:#000;letter-spacing:1px}
+    h1{font-size:86px;margin:6px 0;font-weight:700;letter-spacing:2px}
+    .subtitle{font-size:18px;color:#222;margin-bottom:18px}
+
+    /* input area */
+    .entry{display:flex;justify-content:center;gap:8px;align-items:center;margin:10px 0}
+    .entry input[type=text]{width:420px;padding:8px;border:3px solid #f4a3c9;background:transparent;border-radius:2px}
+    .entry button{padding:8px 14px;background:transparent;border:2px solid #f08ab5;border-radius:4px;cursor:pointer}
+
+    /* big message box */
+    .message-box{height:200px;background:rgba(255, 182, 207,0.9);border:4px solid #f08ab5;margin:18px auto;max-width:900px;border-radius:3px;padding:14px;text-align:left;overflow:auto}
+
+    /* music control */
+    .music-bar{position:fixed;left:18px;bottom:18px;display:flex;gap:8px;align-items:center;background:rgba(255,255,255,0.6);padding:8px 12px;border-radius:22px;border:1px solid rgba(0,0,0,0.06)}
+    .music-bar button{background:none;border:none;cursor:pointer;font-size:20px}
+    .music-code{font-size:14px;color:#333}
+
+    /* decorations */
+    .decor{position:absolute;top:18px;left:18px;width:120px;opacity:0.95}
+    .decor.right{right:18px;left:auto}
+    .corner-img{position:absolute;right:18px;bottom:18px;width:110px;cursor:pointer}
+
+    /* popup balloons for images */
+    .balloon{position:fixed;left:50%;transform:translateX(-50%);bottom:110px;background:white;padding:12px;border-radius:8px;box-shadow:0 6px 18px rgba(0,0,0,0.1);max-width:320px;display:none}
+    .balloon.show{display:block}
+
+    .hint-link{color:#4c1f2f;text-decoration:underline}
+
+    /* progress */
+    .progress{margin-top:8px;font-size:14px;color:#333}
+
+    /* small responsive */
+    @media(max-width:700px){ h1{font-size:44px} .entry input{width:200px} .message-box{height:160px} }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <img src="assets/Lazo.png" class="decor" id="lazo" alt="Lazo"/>
+    <img src="assets/Cereza.png" class="decor right" id="cereza" alt="Cereza"/>
+
+    <header>
+      <div class="small">Feliz Aniversario</div>
+      <h1>mon amour</h1>
+      <div class="subtitle">"(Donde ira el acetijo)"</div>
+    </header>
+
+    <div class="entry">
+      <input id="answer" type="text" placeholder="Escribe tu respuesta aquí..." autocomplete="off" />
+      <button id="enterBtn">ENTER</button>
+    </div>
+
+    <div class="message-box" id="messageBox">
+      <div id="promptArea">Bienvenida preciosa — cuando estés lista escribe la respuesta y presiona ENTER. ❤️</div>
+    </div>
+
+    <div class="progress" id="progress">Acertijo 0 / 15</div>
+
+    <img src="assets/Tiara.png" class="corner-img" id="tiara" alt="Tiara"/>
+
+    <div class="balloon" id="balloon">Mensaje</div>
+
+  </div>
+
+  <div class="music-bar">
+    <button id="playPause">▶</button>
+    <div class="music-code" id="musicIndicator">Pista de musica</div>
+    <audio id="audioPlayer" src="assets/saturno.mp3"></audio>
+  </div>
+
+  <script>
+    // --- Data ---
+    const riddles = [
+      {
+        id:1,
+        prompt:`¿Cuál fue nuestro inicio?`,
+        hintAnswers:["congreso de líderes","congreso de lideres"],
+        hintText:`MMMM cerca me gusta como piensas pero prueba mejor con la fecha Septiembre siempre fue nuestro mes si te pones a pensar.`,
+        correct:["8 de septiembre","8 de septiembre del 2023","08|09|23","08/09/23","08-09-23","08 09 23","8/9/2023"],
+      },
+      {id:2,prompt:`Aplica el mismo código que usé en el cumple de Celeste: "wtapsd st btcip".`,hintAfterAttempts:3,hintText:`Visita: https://caesar-cipher.com`,correct:["helado de menta"]},
+      {id:3,prompt:`Escucha el código morse que hay en esta pista.`,hintAfterAttempts:3,hintText:`Trata de escuchar bien la pagina o si no busca en tus recuerdos paises, talvez de pesadilla`,correct:["alicia en el país de la pesadillas","alicia en el pais de la pesadillas","alicia en el pais de las pesadillas","alicia en el pais de la pesadilla","alicia en las pesadillas"],audio:'assets/morse.mp3',specialLetter:'P'},
+      {id:4,prompt:`Pequeño regalo (playlist).`,hintAfterAttempts:3,hintText:`Recuerda nuestro humor o bueno también el Nsqk lo repite en una canción`,correct:["rompecabezas"] ,link:"https://open.spotify.com/playlist/4mrGLgZmjdwkwcyvPscBGY?si=0dfda944609242cb"},
+      {id:5,prompt:`Escucha y ve que te dice la música (empieza en 1:15).`,hintAfterAttempts:3,hintText:`Casi mi niña prueba con el nombre de los tres pequeños de mayor a menor que siempre añorare que esten`,correct:["nerea, vinny y alex","nerea vinny alex","nerea vinny y alex","nerea vinny alex"],audio:'assets/saturno.mp3'},
+      {id:6,prompt:`Descifra: 4c,61,72,61,20,4a,65,61,6e`,hintAfterAttempts:3,hintText:`Piensa en un tú de otro universo, uno que me encanta haber conocido por ti.`,correct:["lara jean","lara jean ","lara jean"] ,specialLetter:'S'},
+      {id:7,prompt:`¿Cuál fue la banda que te enseñé?`,hintAfterAttempts:3,hintText:`mmm nop osea si es mi papá y practicamente toda su musica es un nosotros pero no quizas una Prueba gratuita sin Floro te hagan recordar algo`,correct:["algo caleta","algo caleta "],hintAnswers:["nsqk"]},
+      {id:8,prompt:`La clave de mi cel...`,hintAfterAttempts:3,hintText:`"incorrecto preciosa... prueba con fechas de mi núcleo familiar"`,correct:["152108","15 21 08","15/21/08","152108 "],hintAnswers:["150924"]},
+      {id:9,prompt:`Mezcla los codigos: 49,6a,61,78,65,70,63,74,68`,hintAfterAttempts:3,hintText:`Quizás primero tengas que usar el segundo método y dps el primero vamos tu puedes`,correct:["tulipanes"],specialLetter:'T'},
+      {id:10,prompt:`¿Cuál fue la inspiración de la caja?`,hintAfterAttempts:3,hintText:`Lo gracioso es que se inspira de una obra de un pintor el cual un tiempo me pusiste de apodo`,correct:["noche estrellada","la noche estrellada"]},
+      {id:11,prompt:`Resuelve: x^3−45x^2+675x−3375 = x^2−30x+225`,hintAfterAttempts:3,hintText:`Vamos corazon yo se que tu puedes...`,correct:["15","15 "]},
+      {id:12,prompt:`¿Cuál era el perrito animado que amamos?`,hintAfterAttempts:3,hintText:`Recuerda...`,correct:["snoopy"],specialLetter:'N'},
+      {id:13,prompt:`Regalo y ayuda con tu viaje (mira el link).`,hintAfterAttempts:3,hintText:`Abre el documento que te compartí`,correct:["te amo","te amo "],link:"https://docs.google.com/document/d/1cp254Q6XPfUuR4CRq9VRn0ynH5ZIyjY5iWR4octW6io/edit?usp=sharing"},
+      {id:14,prompt:`Pista de música (usa 444.mp3).`,hintAfterAttempts:3,hintText:`Vamos preciosa lo dije en el acertijo N°6 muaks`,correct:["tatuaje del alma","tatuaje del alma "],audio:'assets/444.mp3'},
+      {id:15,prompt:`Para la clave final usa las letras mostradas en múltiplos de 3.`,hintAfterAttempts:0,correct:["psts","pstn","PSTN","pstn"],final:true}
+    ];
+
+    const motivational = [
+      "Vamos mi niña tu puedes","Preciosa vuelve a intentarlo","mmm casi bleh","tu puedes corazón","Mi princesa tu puedes","Amor vamos no te rindas","Me encantas","Te amo muchototote","muto muto mutotoote","Enserio me encantas","sigue intentando preciosa","uy creo que eso no era","bleh no puede","JKAJKAJKA respira y piensa","Te amo mis ojitos preciosos","Casi pero neh","muak","gogogogo","jijijiji vamos no te rindas","yo se que tu puedes","Estoy muy orgulloso de ti mi niña","uy casi","no te rindas corazón","Tu lo eres todo para mi"
+    ];
+
+    const secretWords = {
+      "cachetitos":`Siempre me encanta lo suaves y lindos que son tus cachetitos, mis cachetitos bonitos muaks`,
+      "444":`Tu siempre va tenerme y Yo siempre voa tenerte`,
+      "mi princesita":`Tu siempre seras eso para mi mi dulce princesita encantadora inteligente y perfecta muask`,
+      "abogada":`Seras la mejor abogada del mundo, no le digas a mi mamá que dije eso, pero enserio siempre logras lo que te propones y seras la mejor en ello`,
+      "te extraño":`Sí un día deseas regresar no te haré reclamos de nada, solo te abrazaré y te diré lo mucho que te extrañé..`,
+      "vuelve":`Porfavor vuelve aunque sea un segundo cuando necesites mis brazos para sanarte callaré y disfrutare de nuestra calma`,
+      "amor":`Pensar que esta palabra ahora el unico significado que le doy es tú`,
+      "corazón":`Siempre te pertenecera es mas tuyo que mio muaks`,
+      "ade?":`Donde estas llameme ¿Dónde estás?, llámame Déjame verte`
+    };
+
+    // --- State ---
+    let current = 0;
+    let attempts = 0;
+    let unlockedHints = {};
+
+    // DOM
+    const promptArea = document.getElementById('promptArea');
+    const messageBox = document.getElementById('messageBox');
+    const progress = document.getElementById('progress');
+    const answerInput = document.getElementById('answer');
+    const enterBtn = document.getElementById('enterBtn');
+    const playBtn = document.getElementById('playPause');
+    const audioPlayer = document.getElementById('audioPlayer');
+    const musicIndicator = document.getElementById('musicIndicator');
+    const balloon = document.getElementById('balloon');
+
+    // decorations clicks
+    document.getElementById('lazo').addEventListener('click',()=> showBalloon(secretWords['lazo'] || `es lindo el ver...`) );
+    document.getElementById('cereza').addEventListener('click',()=> showBalloon("Sabes es lindo que poco a poco pude ir conociendo más lo que me dejabas aprender con pequeñas cosas como tus gustos con pequeños comentarios que atesoraré para siempre mi lindo 444."));
+    document.getElementById('tiara').addEventListener('click',()=> showBalloon("ey encontraste por tu curiosidad tu lindo accesorio MI PRINCESITA hermosa, realmente siempre lo has sido un muy linda y encantadora, no sabes como amo al menos haber intentado tratarte como tal, espero haberlo logrado, porque realmente lo mereces."));
+
+    function showBalloon(text){ balloon.textContent = text; balloon.classList.add('show'); setTimeout(()=> balloon.classList.remove('show'),6000); }
+
+    function updateUI(){
+      progress.textContent = `Acertijo ${current} / 15`;
+      if(current===0){ promptArea.innerHTML = 'Bienvenida preciosa — cuando estés lista escribe la respuesta y presiona ENTER. ❤️'; return }
+      const r = riddles[current-1];
+      let html = `<strong>Acertijo ${r.id}:</strong> ${r.prompt}`;
+      if(r.link) html += `<div style="margin-top:8px"><a class="hint-link" href="${r.link}" target="_blank">Abrir regalo / recurso</a></div>`;
+      if(r.audio){ html += `<div style="margin-top:8px"><small>Este acertijo tiene una pista de audio. Presiona ▶ en la pista de música para oírla.</small></div>`; }
+      if(r.specialLetter){ html += `<div style="margin-top:8px;font-weight:bold;color:#333">(Letra especial: ${r.specialLetter})</div>` }
+      promptArea.innerHTML = html;
+    }
+
+    function normalize(str){ return str.trim().toLowerCase(); }
+
+    function showMessage(text){ messageBox.innerHTML = `<div>${text}</div>`; messageBox.scrollTop = messageBox.scrollHeight; }
+
+    function nextRiddle(){ current++; attempts=0; updateUI(); answerInput.value=''; }
+
+    function showHintFor(r){ if(r.hintText) showMessage(`<strong>Pista:</strong> ${r.hintText}`); if(r.hintAnswers && r.hintAnswers.length) showMessage(`<em>También intentaste una palabra que abre una pista: ${r.hintAnswers.join(', ')}</em>`); }
+
+    function handleSubmit(){ const raw = answerInput.value; if(!raw) return; const text = normalize(raw);
+      // check secret words (anytime)
+      if(secretWords[text]){ showMessage(`<strong>Secreto desbloqueado:</strong> ${secretWords[text]}`); answerInput.value=''; return; }
+
+      if(current===0){ showMessage('Aun no iniciaste. Escribe la respuesta del primer acertijo para comenzar.'); return }
+
+      const r = riddles[current-1];
+
+      // check hint-opening answers (some riddles have a separate "opens hint" answer)
+      if(r.hintAnswers && r.hintAnswers.length){ if(r.hintAnswers.map(normalize).includes(text)){ showMessage(`<strong>Pista especial abierta:</strong> ${r.hintText || 'Pista disponible.'}`); answerInput.value=''; return } }
+
+      // check correct
+      const ok = r.correct.map(normalize).includes(text);
+      if(ok){ showMessage(`<strong>Correcto ✅</strong> — Abres el siguiente acertijo.`);
+        // if final -> special
+        if(r.final){ // final success - redirect
+          showMessage('¡Felicidades! Abriendo regalo final...');
+          setTimeout(()=>{ window.location.href = 'https://skylesskb.github.io/Sky'; },1200);
+          return;
+        }
+        // advance
+        nextRiddle();
+        return;
+      }
+
+      // incorrect
+      attempts++;
+      const phrase = motivational[Math.floor(Math.random()*motivational.length)];
+      showMessage(`<strong>Incorrecto ✖</strong> — ${phrase}`);
+
+      // after 3 attempts, show hint if available
+      if(r.hintAfterAttempts && attempts>=r.hintAfterAttempts){ showHintFor(r); }
+
+      // special: on certain riddle numbers, when reached show letter overlay (already added to prompt area by updateUI)
+    }
+
+    // init
+    updateUI();
+
+    enterBtn.addEventListener('click', handleSubmit);
+    answerInput.addEventListener('keydown', (e)=>{ if(e.key==='Enter') handleSubmit(); });
+
+    // music control
+    let playingForRiddle=null;
+    playBtn.addEventListener('click', ()=>{
+      if(audioPlayer.paused){
+        // decide which audio to play depending on current riddle and availability
+        const r = riddles[current-1];
+        if(!r){ audioPlayer.src='assets/saturno.mp3'; }
+        else if(r.audio) audioPlayer.src = r.audio;
+        else audioPlayer.src='assets/saturno.mp3';
+        audioPlayer.play();
+        playBtn.textContent='⏸';
+        // show a code when music plays
+        const code = generateMusicCode();
+        musicIndicator.textContent = `Pista de musica — CÓDIGO: ${code}`;
+        playingForRiddle = current;
+      } else { audioPlayer.pause(); playBtn.textContent='▶'; musicIndicator.textContent='Pista de musica'; }
+    });
+
+    audioPlayer.addEventListener('ended', ()=>{ playBtn.textContent='▶'; musicIndicator.textContent='Pista de musica'; playingForRiddle=null; });
+
+    function generateMusicCode(){ // a small pseudorandom but stable code based on time
+      const t = Date.now();
+      return (''+((t%9000)+1000)).slice(0,4);
+    }
+
+    // helper: if a riddle has specialLetter, display on arrival (already in updateUI)
+
+    // start the game by jumping to first riddle
+    function start(){ current=1; attempts=0; updateUI(); showMessage('Comenzó la travesía. Sigue las pistas y escribe tu respuesta. ❤️'); }
+
+    // small easter: allow user to type "start" or similar
+    answerInput.addEventListener('input', (e)=>{
+      const v = normalize(e.target.value);
+      if(v==='start' || v==='comenzar' || v==='empezar' || v==='iniciar'){ start(); answerInput.value=''; }
+      // also allow secret words by typing directly
+      if(secretWords[v]){
+        showMessage(`<strong>Secreto desbloqueado:</strong> ${secretWords[v]}`); answerInput.value='';
+      }
+    });
+
+    // expose for debugging in console
+    window.RexPuzzle = { riddles, start };
+
+  </script>
+</body>
+</html>
