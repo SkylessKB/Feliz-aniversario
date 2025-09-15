@@ -72,7 +72,7 @@
   <script>
     // --- Acertijos ---
     const riddles = [
-      {id:1,prompt:`¿Cuál fue nuestro inicio?`,hintAfter:1,hintText:`MMMM cerca me gusta como piensas pero prueba mejor con la fecha Septiembre siempre fue nuestro mes si te pones a pensar.`,correct:["8 de septiembre","8 de septiembre del 2023","08|09|23","08/09/23","08-09-23"]},
+      {id:1,prompt:`¿Cuál fue nuestro inicio?`,hintAfter:0,hintText:`MMMM cerca me gusta como piensas pero prueba mejor con la fecha Septiembre siempre fue nuestro mes si te pones a pensar.`,correct:["8 de septiembre","8 de septiembre del 2023","08|09|23","08/09/23","08-09-23"]},
       {id:2,prompt:`"wtapsd st btcip"`,hintAfter:3,hintText:`Visita: https://caesar-cipher.com`,correct:["helado de menta"]},
       {id:3,prompt:`Escucha el código morse.`,hintAfter:3,hintText:`Trata de escuchar bien la pagina o busca en tus recuerdos países, tal vez de pesadilla`,correct:["alicia en el país de la pesadillas","alicia en el pais de la pesadillas","alicia en el pais de las pesadillas","alicia en las pesadillas"],specialLetter:"P",audio:"assets/morse.mp3"},
       {id:4,prompt:`Pequeño regalo (playlist).`,hintAfter:3,hintText:`Recuerda nuestro humor o también el Nsqk lo repite en una canción`,correct:["rompecabezas"],link:"https://open.spotify.com/playlist/4mrGLgZmjdwkwcyvPscBGY"},
@@ -103,7 +103,8 @@
       "ade?":"Donde estas llameme ¿Dónde estás?, llámame Déjame verte"
     };
 
-    let current=1, attempts=0;
+    let current = 1;  // Reinicia siempre en el acertijo 1
+    let attempts = 0;
 
     const subtitle=document.getElementById('subtitle');
     const progress=document.getElementById('progress');
@@ -123,7 +124,17 @@
       messageBox.innerHTML="";
       if(r.link) messageBox.innerHTML+=`<div><a href="${r.link}" target="_blank">Abrir recurso</a></div>`;
       if(r.specialLetter) messageBox.innerHTML+=`<div><strong>Letra especial: ${r.specialLetter}</strong></div>`;
-      if(r.audio) musicBar.style.display="flex"; else musicBar.style.display="none";
+
+      if(r.audio){
+        musicBar.style.display="flex";
+        audioPlayer.src=r.audio; // cargar el audio al entrar al acertijo
+        playBtn.textContent="▶";
+        musicIndicator.textContent="Pista de musica";
+      } else {
+        musicBar.style.display="none";
+        audioPlayer.pause();
+        audioPlayer.src="";
+      }
     }
 
     function normalize(s){return s.trim().toLowerCase();}
