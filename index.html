@@ -66,7 +66,7 @@
   <div class="music-bar" id="musicBar" style="display:none">
     <button id="playPause">▶</button>
     <div class="music-code" id="musicIndicator">Pista de musica</div>
-    <audio id="audioPlayer"></audio>
+    <audio id="audioPlayer" preload="auto"></audio>
   </div>
 
   <script>
@@ -76,7 +76,7 @@
       {id:2,prompt:`"wtapsd st btcip"`,hintAfter:3,hintText:`Visita: https://caesar-cipher.com`,correct:["helado de menta"]},
       {id:3,prompt:`Escucha el código morse.`,hintAfter:3,hintText:`Trata de escuchar bien la pagina o busca en tus recuerdos países, tal vez de pesadilla`,correct:["alicia en el país de la pesadillas","alicia en el pais de la pesadillas","alicia en el pais de las pesadillas","alicia en las pesadillas"],specialLetter:"P",audio:"assets/morse.mp3"},
       {id:4,prompt:`Pequeño regalo (playlist).`,hintAfter:3,hintText:`Recuerda nuestro humor o también el Nsqk lo repite en una canción`,correct:["rompecabezas"],link:"https://open.spotify.com/playlist/4mrGLgZmjdwkwcyvPscBGY"},
-      {id:5,prompt:`Escucha y ve que te dice la música (minuto 1:15).`,hintAfter:3,hintText:`Prueba con el nombre de los tres pequeños de mayor a menor.`,correct:["nerea, vinny y alex","nerea vinny alex"],audio:"assets/Saturno.mp3"},
+      {id:5,prompt:`Escucha y ve que te dice la música (minuto 1:15).`,hintAfter:3,hintText:`Prueba con el nombre de los tres pequeños de mayor a menor.`,correct:["nerea, vinny y alex","nerea vinny alex"],audio:"assets/saturno.mp3"},
       {id:6,prompt:`Descifra: 4c,61,72,61,20,4a,65,61,6e`,hintAfter:3,hintText:`Piensa en un tú de otro universo.`,correct:["lara jean"],specialLetter:"S"},
       {id:7,prompt:`¿Cuál fue la banda que te enseñé?`,hintAfter:3,hintText:`Quizás una prueba gratuita sin floro te haga recordar algo.`,correct:["algo caleta"]},
       {id:8,prompt:`La clave de mi cel...`,hintAfter:3,hintText:`Prueba con fechas de mi núcleo familiar.`,correct:["152108"]},
@@ -85,7 +85,7 @@
       {id:11,prompt:`Resuelve: x^3−45x^2+675x−3375 = x^2−30x+225`,hintAfter:3,hintText:`Vamos corazón, yo sé que puedes.`,correct:["15"]},
       {id:12,prompt:`¿Cuál era el perrito animado que amamos?`,hintAfter:3,hintText:`Recuerda...`,correct:["snoopy"],specialLetter:"N"},
       {id:13,prompt:`Regalo y ayuda con tu viaje.`,hintAfter:3,hintText:`Abre el documento compartido.`,correct:["te amo"],link:"https://docs.google.com/document/d/1cp254Q6XPfUuR4CRq9VRn0ynH5ZIyjY5iWR4octW6io/edit?usp=sharing"},
-      {id:14,prompt:`Escucha la cancion y recuerda siempre sera mi marca mas hermosa.`,hintAfter:3,hintText:`Lo dije en el acertijo N°6.`,correct:["tatuaje del alma"],audio:"assets/444.mp3"},
+      {id:14,prompt:`Pista de música (444.mp3).`,hintAfter:3,hintText:`Lo dije en el acertijo N°6.`,correct:["tatuaje del alma"],audio:"assets/444.mp3"},
       {id:15,prompt:`Clave final con letras de múltiplos de 3.`,hintAfter:0,hintText:"",correct:["pstn","PSTN"],final:true}
     ];
 
@@ -128,6 +128,7 @@
       if(r.audio){
         musicBar.style.display="flex";
         audioPlayer.src=r.audio; // cargar el audio al entrar al acertijo
+        audioPlayer.load(); // forzar recarga
         playBtn.textContent="▶";
         musicIndicator.textContent="Pista de musica";
       } else {
@@ -152,7 +153,7 @@
 
       if(r.correct.some(c=>normalize(c)===text)){
         showMessage("<strong>Correcto ✅</strong>");
-        if(r.final){window.location.href='https://skylesskb.github.io/Sky';return;}
+        if(r.final){window.location.href='https://skylesskb.github.io/Novio';return;}
         nextRiddle();
       }else{
         attempts++;
@@ -176,7 +177,7 @@
       const r=riddles[current-1];
       if(audioPlayer.paused){
         if(r.audio) audioPlayer.src=r.audio;
-        audioPlayer.play();
+        audioPlayer.play().catch(err=>console.log("Error al reproducir:",err));
         playBtn.textContent='⏸';
         musicIndicator.textContent=`Pista de musica — CÓDIGO: ${Math.floor(1000+Math.random()*9000)}`;
       }else{
